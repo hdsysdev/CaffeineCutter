@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.customcode420.caffeinecutter.MainActivity">
+    tools:context="com.customcode420.caffeinecutter.MainActivity"
+    android:paddingTop="5dp">
 
 
     <android.support.design.widget.FloatingActionButton
@@ -22,6 +23,30 @@
         android:layout_alignParentEnd="true"
         android:src="@drawable/ic_done_black_24dp"/>
 
+    <include layout="@layout/progress_bar" />
+
     <include layout="@layout/drawer_layout"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="175dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:headerDividersEnabled="false">
+
+    </ListView>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_below="@id/progressBarLayout"
+        android:id="@+id/button"
+        android:text="Some button text"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_below="@id/button"
+        android:text="Some other button text"/>
 </RelativeLayout>
 
