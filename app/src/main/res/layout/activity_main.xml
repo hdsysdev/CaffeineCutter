@@ -8,45 +8,41 @@
     android:paddingTop="5dp">
 
 
-    <android.support.design.widget.FloatingActionButton
+    <include layout="@layout/progress_bar"
+        android:id="@+id/include2" />
+
+    <include layout="@layout/drawer_layout" />
+
+    <com.github.clans.fab.FloatingActionMenu
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        app:fabSize="normal"
-        app:srcCompat="@color/colorAccent"
-        android:layout_marginRight="27dp"
-        android:layout_marginEnd="27dp"
-        android:layout_marginBottom="27dp"
-        android:id="@+id/floatingActionButton"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_done_black_24dp"/>
+        android:layout_alignParentBottom="true"
+        app:menu_fab_size="normal">
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabSize="normal"/>
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/coffee_cup"
+            app:fabSize="normal"/>
+    </com.github.clans.fab.FloatingActionMenu>
 
-    <include layout="@layout/progress_bar" />
-
-    <include layout="@layout/drawer_layout"/>
-
-    <ListView
+    <!--ListView
         android:layout_width="match_parent"
         android:layout_height="175dp"
-        android:layout_alignParentBottom="true"
+        android:headerDividersEnabled="false"
+        android:id="@+id/listView"
+        tools:ignore="UnknownId"
+        android:layout_below="@id/include2"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:headerDividersEnabled="false">
+        android:layout_alignParentBottom="true">
 
-    </ListView>
+    </ListView-->
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_below="@id/progressBarLayout"
-        android:id="@+id/button"
-        android:text="Some button text"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_below="@id/button"
-        android:text="Some other button text"/>
 </RelativeLayout>
 
