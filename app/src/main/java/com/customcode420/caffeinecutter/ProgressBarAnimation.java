@@ -10,11 +10,9 @@ public class ProgressBarAnimation extends Animation {
     private float from;
     private float to;
 
-    public ProgressBarAnimation(ProgressBar progressBar, float from, float to){
+    public ProgressBarAnimation(ProgressBar progressBar){
         super();
         this.progressBar = progressBar;
-        this.from = from;
-        this.to = to;
     }
 
     @Override
@@ -22,5 +20,9 @@ public class ProgressBarAnimation extends Animation {
         super.applyTransformation(interpolatedTime, t);
         float value = from + (to - from) * interpolatedTime;
         progressBar.setProgress((int) value);
+    }
+    public void setStartEnd(float from, float to){
+        this.from = from;
+        this.to = to;
     }
 }

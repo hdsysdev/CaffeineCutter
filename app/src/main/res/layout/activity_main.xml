@@ -23,6 +23,7 @@
 
     </ListView>
 
+
     <include layout="@layout/drawer_layout" />
 
     <com.github.clans.fab.FloatingActionMenu
@@ -35,6 +36,13 @@
         android:layout_marginBottom="15dp"
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp">
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_fab_star"
+            android:id="@+id/undoFAB"
+            app:fabSize="normal"
+            app:fab_label="Undo"/>
         <com.github.clans.fab.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
