@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="45dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/coffee_cup"
+        android:paddingRight="10dp"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        android:id="@+id/drinkImg"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Drink Name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_toEndOf="@id/drinkImg"
+        android:layout_toRightOf="@id/drinkImg"
+        android:id="@+id/drinkName"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/drinkName"
+        android:layout_toRightOf="@id/drinkImg"
+        android:layout_toEndOf="@id/drinkImg"
+        android:text="Caffeine Content: "
+        android:id="@+id/contentLabel"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/contentLabel"
+        android:text="69mg"
+        android:layout_below="@id/drinkName"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:text="Time"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:textSize="15sp"
+        android:paddingRight="10dp"/>
+
+
+</RelativeLayout>

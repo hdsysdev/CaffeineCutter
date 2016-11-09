@@ -1,6 +1,8 @@
 package com.customcode420.caffeinecutter;
 
+import android.icu.text.DateFormat;
 import android.icu.text.DecimalFormat;
+import android.icu.text.SimpleDateFormat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +15,7 @@ import com.customcode420.caffeinecutter.ProgressBarAnimation;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -28,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final ArrayList<Float> history = new ArrayList<>();
+
+
 
         //Defining FABs for different kinds of coffee.
         final FloatingActionButton instantCoffe250 =
@@ -65,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
 
                 //Adding drink to history
                 history.add(60.2F);
+
+                //Inserting drink to history database
+                String date = java.text.DateFormat.getDateTimeInstance()
+                        .format(Calendar.getInstance().getTime());
+                //TODO: Use realm to insert to database
             }
         });
 
@@ -78,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
                 history.add(120.4F);
+
+                //TODO: Add database management stuff
             }
         });
 
