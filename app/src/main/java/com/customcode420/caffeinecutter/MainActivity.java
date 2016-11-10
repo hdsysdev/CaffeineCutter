@@ -12,36 +12,50 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.customcode420.caffeinecutter.ProgressBarAnimation;
 
+import com.facebook.stetho.Stetho;
 import com.github.clans.fab.FloatingActionButton;
+import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MainActivity extends AppCompatActivity {
 
     float currentLevel = 0;
     float oldLevel = 0;
-
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ArrayList<Float> history = new ArrayList<>();
+        //Initialising RealmDb and Stetho for use in Chrome dev tools
+        Realm.init(this);
+
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+                        .build());
+
+        realm = Realm.getDefaultInstance();
 
 
 
         //Defining FABs for different kinds of coffee.
-        final FloatingActionButton instantCoffe250 =
+        final FloatingActionButton instantCoffee250 =
                 (FloatingActionButton) findViewById(R.id.instantCoffee250);
-        final FloatingActionButton instantCoffe500 =
+        final FloatingActionButton instantCoffee500 =
                 (FloatingActionButton) findViewById(R.id.instantCoffee500);
-        final FloatingActionButton brewedCoffe250 =
+        final FloatingActionButton brewedCoffee250 =
                 (FloatingActionButton) findViewById(R.id.brewedCoffee250);
-        final FloatingActionButton brewedCoffe500 =
+        final FloatingActionButton brewedCoffee500 =
                 (FloatingActionButton) findViewById(R.id.brewedCoffee500);
         //Defining Undo FAB
         final FloatingActionButton undoButton =
@@ -57,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Creating onClickListeners with appropriate float values for caffeine amount.
-        instantCoffe250.setOnClickListener(new View.OnClickListener() {
+        instantCoffee250.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 oldLevel = currentLevel;
@@ -68,17 +82,23 @@ public class MainActivity extends AppCompatActivity {
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
 
-                //Adding drink to history
-                history.add(60.2F);
 
-                //Inserting drink to history database
-                String date = java.text.DateFormat.getDateTimeInstance()
+                //Inserting drink to history realm
+                final String date = java.text.DateFormat.getDateTimeInstance()
                         .format(Calendar.getInstance().getTime());
-                //TODO: Use realm to insert to database
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        History history = realm.createObject(History.class);
+                        history.setCafContent(60.2F);
+                        history.setName("instantCoffee250");
+                        history.setTime(date);
+                    }
+                });
             }
         });
 
-        instantCoffe500.setOnClickListener(new View.OnClickListener() {
+        instantCoffee500.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 oldLevel = currentLevel;
@@ -87,13 +107,24 @@ public class MainActivity extends AppCompatActivity {
                 levelNum.setText(tempStr);
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
-                history.add(120.4F);
 
-                //TODO: Add database management stuff
+
+                //Inserting drink to history realm
+                final String date = java.text.DateFormat.getDateTimeInstance()
+                        .format(Calendar.getInstance().getTime());
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        History history = realm.createObject(History.class);
+                        history.setCafContent(120.4F);
+                        history.setName("instantCoffee500");
+                        history.setTime(date);
+                    }
+                });
             }
         });
 
-        brewedCoffe250.setOnClickListener(new View.OnClickListener() {
+        brewedCoffee250.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 oldLevel = currentLevel;
@@ -102,11 +133,23 @@ public class MainActivity extends AppCompatActivity {
                 levelNum.setText(tempStr);
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
-                history.add(172.2F);
+
+                //Inserting drink to history realm
+                final String date = java.text.DateFormat.getDateTimeInstance()
+                        .format(Calendar.getInstance().getTime());
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        History history = realm.createObject(History.class);
+                        history.setCafContent(172.2F);
+                        history.setName("brewedCoffee250");
+                        history.setTime(date);
+                    }
+                });
             }
         });
         //Use ProgressBarAnimation function to animate the progress bad
-        brewedCoffe500.setOnClickListener(new View.OnClickListener() {
+        brewedCoffee500.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 oldLevel = currentLevel;
@@ -116,11 +159,23 @@ public class MainActivity extends AppCompatActivity {
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
 
-                history.add(344.4F);
 
                 if (currentLevel >= 10800){
                     levelNum.setText("How the fuck are you not dead yet.");
                 }
+
+                //Inserting drink to history realm
+                final String date = java.text.DateFormat.getDateTimeInstance()
+                        .format(Calendar.getInstance().getTime());
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        History history = realm.createObject(History.class);
+                        history.setCafContent(344.4F);
+                        history.setName("brewedCoffee500");
+                        history.setTime(date);
+                    }
+                });
             }
         });
 
@@ -128,20 +183,39 @@ public class MainActivity extends AppCompatActivity {
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (history.size() != 0){
+                final RealmResults<History> results = realm.where(History.class).findAll();
+
+
+                if (!results.isEmpty()){
+                    oldLevel = currentLevel;
+                    //Removing last entry in history realm from current level.
+                    currentLevel -= results.last().getCafContent();;
+                    if (currentLevel <= 0)
+                        currentLevel = 0;
+
+               /* if (history.size() != 0){
                     oldLevel = currentLevel;
                     //Removing last entry in history from current level.
                     currentLevel -= history.get(history.size() - 1);
                     if (currentLevel <= 0)
-                        currentLevel = 0;
+                        currentLevel = 0;*/
 
                     String tempStr = currentLevel + " mg";
                     levelNum.setText(tempStr);
                     animation.setStartEnd(oldLevel, currentLevel);
                     caffeineMeter.startAnimation(animation);
 
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            results.deleteLastFromRealm();
+                        }
+                    });
+
+
                     //Removing last item from history
-                    history.remove(history.size() - 1);
+                    //history.remove(history.size() - 1);
+
                 }
             }
         });
