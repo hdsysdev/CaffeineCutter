@@ -1,24 +1,17 @@
 package com.customcode420.caffeinecutter;
 
-import android.icu.text.DateFormat;
-import android.icu.text.DecimalFormat;
-import android.icu.text.SimpleDateFormat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.animation.Transformation;
-import android.widget.Button;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.customcode420.caffeinecutter.ProgressBarAnimation;
 
 import com.facebook.stetho.Stetho;
 import com.github.clans.fab.FloatingActionButton;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -61,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
         final FloatingActionButton undoButton =
                 (FloatingActionButton) findViewById(R.id.undoFAB);
 
+        //Defining ListView
+        final ListView historyList = (ListView) findViewById(R.id.listView);
+        final HistoryAdapter historyAdapter = new HistoryAdapter(this);
+        historyList.setAdapter(historyAdapter);
+
 
         final ProgressBar caffeineMeter = (ProgressBar) findViewById(R.id.progressBar);
         final TextView levelNum = (TextView) findViewById(R.id.levelNumber);
@@ -95,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
                         history.setTime(date);
                     }
                 });
+
+                historyAdapter.notifyDataSetChanged();
             }
         });
 
