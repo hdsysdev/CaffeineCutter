@@ -23,8 +23,8 @@ import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
-    float currentLevel = 0;
-    float oldLevel = 0;
+    Integer currentLevel = 0;
+    Integer oldLevel = 0;
     private Realm realm;
     private final ArrayList<String> favIdList = new ArrayList<>();
     DrinksDatabaseHelper dbHelper = new DrinksDatabaseHelper(this);
@@ -90,14 +90,16 @@ public class MainActivity extends AppCompatActivity {
         instantCoffee250.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final String drinkId = "instantCoffee";
+                final Integer cafContent = getCafContent(drinkId);
+
                 oldLevel = currentLevel;
-                currentLevel += 60.2F;
-                String tempStr = round(currentLevel) + " mg";
+                currentLevel += cafContent;
+                String tempStr = currentLevel + " mg";
                 levelNum.setText(tempStr);
                 //Using setStartEnd function to change values in animation class.
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
-                final String drinkId = "instantCoffee";
 
                 //Inserting drink to history realm
                 final String date = java.text.DateFormat.getDateTimeInstance()
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
-                        history.setCafContent(60.2F);
+                        history.setCafContent(cafContent);
                         history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
@@ -120,13 +122,15 @@ public class MainActivity extends AppCompatActivity {
         instantCoffee500.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final String drinkId = "instantCoffee";
+                final Integer cafContent = getCafContent(drinkId);
+
                 oldLevel = currentLevel;
-                currentLevel += 120.4F;
+                currentLevel += cafContent;
                 String tempStr = currentLevel + " mg";
                 levelNum.setText(tempStr);
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
-                final String drinkId = "instantCoffee";
 
                 //Inserting drink to history realm
                 final String date = java.text.DateFormat.getDateTimeInstance()
@@ -136,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
-                        history.setCafContent(120.4F);
+                        history.setCafContent(cafContent);
                         history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
@@ -147,14 +151,14 @@ public class MainActivity extends AppCompatActivity {
         brewedCoffee250.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final String drinkId = "brewedCoffee";
+                final Integer cafContent = getCafContent(drinkId);
                 oldLevel = currentLevel;
-                currentLevel += 172.2F;
+                currentLevel += cafContent;
                 String tempStr = currentLevel + " mg";
                 levelNum.setText(tempStr);
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
-
-                final String drinkId = "brewedCoffee";
 
                 //Inserting drink to history realm
                 final String date = java.text.DateFormat.getDateTimeInstance()
@@ -165,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
-                        history.setCafContent(172.2F);
+                        history.setCafContent(cafContent);
                         history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
@@ -176,9 +180,11 @@ public class MainActivity extends AppCompatActivity {
         brewedCoffee500.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                oldLevel = currentLevel;
-                currentLevel += 344.4F;
                 final String drinkId = "brewedCoffee";
+                final Integer cafContent = getCafContent(drinkId);
+                oldLevel = currentLevel;
+                currentLevel += cafContent;
+
                 String tempStr = currentLevel + " mg";
                 levelNum.setText(tempStr);
                 animation.setStartEnd(oldLevel, currentLevel);
@@ -193,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
-                        history.setCafContent(344.4F);
+                        history.setCafContent(cafContent);
                         history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
@@ -243,9 +249,6 @@ public class MainActivity extends AppCompatActivity {
         //Add query then implement into toast
 
         Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + id +"';");
-//        Toast.makeText(this, "You've added " +
-//                cursor.getString(cursor.getColumnIndex("drinkName")) + " to your favourites",
-//                Toast.LENGTH_SHORT).show();
 
         //Moves the cursor to the first location.
         cursor.moveToFirst();
@@ -262,6 +265,14 @@ public class MainActivity extends AppCompatActivity {
         //Returning drink name and appending the volume of the drink to the end of the drink name
         return cursor.getString(cursor.getColumnIndex("drinkName")) + " " +
                 cursor.getString(cursor.getColumnIndex("drinkVol"));
+    }
+
+    public Integer getCafContent(String drinkId){
+        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + drinkId +"';");
+        //Moving cursor to first position in results.
+        cursor.moveToFirst();
+        //Returning caffeine content in the drink from cafContent column.
+        return cursor.getInt(cursor.getColumnIndex("cafContent"));
     }
 
     private static double round (double value) {

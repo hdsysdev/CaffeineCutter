@@ -7,13 +7,13 @@ import io.realm.RealmObject;
 
 public class History  extends RealmObject{
     private String name;
-    private Float cafContent;
+    private Integer cafContent;
     private String time;
 
     public String getName(){return name;}
     public void setName(String name){this.name = name;}
-    public Float getCafContent(){return cafContent;}
-    public void setCafContent(Float cafContent){this.cafContent = cafContent;}
+    public Integer getCafContent(){return cafContent;}
+    public void setCafContent(Integer cafContent){this.cafContent = cafContent;}
 
     public String getTime() {
         return time;
