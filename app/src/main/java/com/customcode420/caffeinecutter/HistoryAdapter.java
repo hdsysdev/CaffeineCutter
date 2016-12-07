@@ -6,9 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.customcode420.caffeinecutter.MainActivity.*;
 
 
 import java.util.List;
@@ -49,23 +51,32 @@ public class HistoryAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View vi = convertView;
-        if (vi == null)
-            vi = inflater.inflate(R.layout.row, null);
 
+        if (convertView == null)
+            convertView = LayoutInflater.from(context).inflate(R.layout.row, parent, false);
 
+        final int tempPos = position;
+
+        ImageView imageView = (ImageView) convertView.findViewById(R.id.drinkImg);
         //Finding views in row items
-        TextView contentNum = (TextView) vi.findViewById(R.id.contentNum);
-        TextView drinkName = (TextView) vi.findViewById(R.id.drinkName);
-        TextView timeView = (TextView) vi.findViewById(R.id.timeTextView);
+        TextView contentNum = (TextView) convertView.findViewById(R.id.contentNum);
+        TextView drinkId = (TextView) convertView.findViewById(R.id.drinkName);
+        TextView timeView = (TextView) convertView.findViewById(R.id.timeTextView);
         //Putting History items from realm into RealmResults
         final RealmResults<History> results = realm.where(History.class).findAll();
 
 
         contentNum.setText(results.get(position).getCafContent().toString());
-        drinkName.setText(results.get(position).getName());
+        drinkId.setText(results.get(position).getName());
         timeView.setText(results.get(position).getTime());
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity mainActivity = new MainActivity();
+                mainActivity.addFavId(results.get(tempPos).getName());
+            }
+        });
 
-        return vi;
+        return convertView;
     }
 }

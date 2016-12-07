@@ -1,16 +1,20 @@
 package com.customcode420.caffeinecutter;
 
+import android.database.Cursor;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.stetho.Stetho;
 import com.github.clans.fab.FloatingActionButton;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import io.realm.Realm;
@@ -22,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
     float currentLevel = 0;
     float oldLevel = 0;
     private Realm realm;
+    private final ArrayList<String> favIdList = new ArrayList<>();
+    DrinksDatabaseHelper dbHelper = new DrinksDatabaseHelper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +45,19 @@ public class MainActivity extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
 
+        //Initialising drinks database
+        try{
+            dbHelper.createDataBase();
 
+        } catch (java.io.IOException ioe){
+            throw new Error("Cant create database");
+        }
+
+        try{
+            dbHelper.openDataBase();
+        } catch (SQLException sqle){
+            throw sqle;
+        }
 
         //Defining FABs for different kinds of coffee.
         final FloatingActionButton instantCoffee250 =
@@ -79,17 +97,18 @@ public class MainActivity extends AppCompatActivity {
                 //Using setStartEnd function to change values in animation class.
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
-
+                final String drinkId = "instantCoffee";
 
                 //Inserting drink to history realm
                 final String date = java.text.DateFormat.getDateTimeInstance()
                         .format(Calendar.getInstance().getTime());
+
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
                         history.setCafContent(60.2F);
-                        history.setName("instantCoffee250");
+                        history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
                 });
@@ -107,17 +126,18 @@ public class MainActivity extends AppCompatActivity {
                 levelNum.setText(tempStr);
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
-
+                final String drinkId = "instantCoffee";
 
                 //Inserting drink to history realm
                 final String date = java.text.DateFormat.getDateTimeInstance()
                         .format(Calendar.getInstance().getTime());
+
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
                         history.setCafContent(120.4F);
-                        history.setName("instantCoffee500");
+                        history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
                 });
@@ -134,15 +154,19 @@ public class MainActivity extends AppCompatActivity {
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
 
+                final String drinkId = "brewedCoffee";
+
                 //Inserting drink to history realm
                 final String date = java.text.DateFormat.getDateTimeInstance()
                         .format(Calendar.getInstance().getTime());
+
+
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
                         history.setCafContent(172.2F);
-                        history.setName("brewedCoffee250");
+                        history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
                 });
@@ -154,28 +178,27 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 oldLevel = currentLevel;
                 currentLevel += 344.4F;
+                final String drinkId = "brewedCoffee";
                 String tempStr = currentLevel + " mg";
                 levelNum.setText(tempStr);
                 animation.setStartEnd(oldLevel, currentLevel);
                 caffeineMeter.startAnimation(animation);
 
 
-                if (currentLevel >= 10800){
-                    levelNum.setText("How the fuck are you not dead yet.");
-                }
-
                 //Inserting drink to history realm
                 final String date = java.text.DateFormat.getDateTimeInstance()
                         .format(Calendar.getInstance().getTime());
+
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
                         History history = realm.createObject(History.class);
                         history.setCafContent(344.4F);
-                        history.setName("brewedCoffee500");
+                        history.setName(getDrinkName(drinkId));
                         history.setTime(date);
                     }
                 });
+
             }
         });
 
@@ -185,7 +208,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final RealmResults<History> results = realm.where(History.class).findAll();
 
-
                 if (!results.isEmpty()){
                     oldLevel = currentLevel;
                     //Removing last entry in history realm from current level.
@@ -193,12 +215,6 @@ public class MainActivity extends AppCompatActivity {
                     if (currentLevel <= 0)
                         currentLevel = 0;
 
-               /* if (history.size() != 0){
-                    oldLevel = currentLevel;
-                    //Removing last entry in history from current level.
-                    currentLevel -= history.get(history.size() - 1);
-                    if (currentLevel <= 0)
-                        currentLevel = 0;*/
 
                     String tempStr = currentLevel + " mg";
                     levelNum.setText(tempStr);
@@ -212,14 +228,40 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-
-                    //Removing last item from history
-                    //history.remove(history.size() - 1);
-
                 }
             }
         });
 
+    }
+
+    public ArrayList<String> getFavIdList() {
+        return favIdList;
+    }
+
+    public void addFavId(String id){
+        favIdList.add(id);
+        //Add query then implement into toast
+
+        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + id +"';");
+//        Toast.makeText(this, "You've added " +
+//                cursor.getString(cursor.getColumnIndex("drinkName")) + " to your favourites",
+//                Toast.LENGTH_SHORT).show();
+
+        //Moves the cursor to the first location.
+        cursor.moveToFirst();
+        Toast.makeText(this, "You've added " +
+                        cursor.getString(cursor.getColumnIndex("drinkName")) + " to your favourites",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    public String getDrinkName(String drinkId){
+        //Creating cursor to pull data from DB.
+        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + drinkId +"';");
+        //Moving cursor to first position in results.
+        cursor.moveToFirst();
+        //Returning drink name and appending the volume of the drink to the end of the drink name
+        return cursor.getString(cursor.getColumnIndex("drinkName")) + " " +
+                cursor.getString(cursor.getColumnIndex("drinkVol"));
     }
 
     private static double round (double value) {
