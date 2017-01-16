@@ -22,7 +22,7 @@
         android:textAlignment="center"
         android:textSize="20dp"
         android:id="@+id/levelNumber"
-        android:text="69 grams of black \n tar heroin"/>
+        android:text="0mg"/>
 
 </RelativeLayout>
 

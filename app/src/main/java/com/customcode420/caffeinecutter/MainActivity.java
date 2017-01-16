@@ -1,10 +1,17 @@
 package com.customcode420.caffeinecutter;
 
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,6 +23,7 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -29,10 +37,16 @@ public class MainActivity extends AppCompatActivity {
     private final ArrayList<String> favIdList = new ArrayList<>();
     DrinksDatabaseHelper dbHelper = new DrinksDatabaseHelper(this);
 
+    SharedPreferences sharedPrefs = null;
+    int dailyCaffeine = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Initialising SharedPreferences to check if it's the app's first run
+        sharedPrefs = getSharedPreferences("com.customcode420.caffeinecutter", MODE_PRIVATE);
 
         //Initialising RealmDb and Stetho for use in Chrome dev tools
         Realm.init(this);
@@ -59,6 +73,16 @@ public class MainActivity extends AppCompatActivity {
             throw sqle;
         }
 
+        //Defining list item array, drawer ListView and
+        String[] drawerListArray = getResources().getStringArray(R.array.drawerMenuArray);
+        ListView drawerList = (ListView) findViewById(R.id.drawerList);
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        Log.v("USER", drawerListArray.toString());
+        //Creating adapter to populate ListView
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.drawer_item, drawerListArray);
+        drawerList.setAdapter(adapter);
+
+
         //Defining FABs for different kinds of coffee.
         final FloatingActionButton instantCoffee250 =
                 (FloatingActionButton) findViewById(R.id.instantCoffee250);
@@ -84,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
         final ProgressBarAnimation animation =
                 new ProgressBarAnimation(caffeineMeter);
         animation.setDuration(1000);
+        //Setting max value of progress bar to daily caffeine intake
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setMax(sharedPrefs.getInt("dailyCaffeine", 300));
 
 
         //Creating onClickListeners with appropriate float values for caffeine amount.
@@ -281,4 +308,35 @@ public class MainActivity extends AppCompatActivity {
         return (double) Math.round(value * scale) / scale;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Creating Alert Dialog Builder for pop up message.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Input your daily caffeine intake");
+        final EditText input = new EditText(this);
+        builder.setView(input);
+
+        //Setting builder positive and negative buttons to apply and cancel.
+        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dailyCaffeine = Integer.parseInt(input.getText().toString());
+                sharedPrefs.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        //Checking if it's the first run. If it is then firstrun is set to false and is committed.
+        if (sharedPrefs.getBoolean("firstrun", true)) {
+            //Showing Dialog
+            builder.show();
+            sharedPrefs.edit().putBoolean("firstrun", false).apply();
+        }
+    }
 }

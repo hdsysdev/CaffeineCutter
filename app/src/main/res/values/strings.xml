@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Caffeine Cutter</string>
+    <string-array name="drawerMenuArray">
+        <item>Home</item>
+        <item>Favourites</item>
+        <item>Statistics</item>
+    </string-array>
 </resources>
