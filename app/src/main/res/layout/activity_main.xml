@@ -46,6 +46,15 @@
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:src="@drawable/coffee_cup"
+                android:id="@+id/otherFab"
+                app:fabSize="normal"
+                app:fab_label="Other"/>
+
+
+            <com.github.clans.fab.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_fab_star"
                 android:id="@+id/undoFAB"
                 app:fabSize="normal"
@@ -79,7 +88,6 @@
                 android:id="@+id/instantCoffee250"
                 app:fabSize="normal"
                 app:fab_label="Instant Coffee (250ml)"/>
-
         </com.github.clans.fab.FloatingActionMenu>
 
 

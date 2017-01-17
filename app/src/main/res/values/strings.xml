@@ -5,4 +5,5 @@
         <item>Favourites</item>
         <item>Statistics</item>
     </string-array>
+    <string name="title_activity_drink_selection">DrinkSelection</string>
 </resources>

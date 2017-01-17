@@ -1,6 +1,7 @@
 package com.customcode420.caffeinecutter;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -23,7 +24,6 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -95,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
         //Defining Undo FAB
         final FloatingActionButton undoButton =
                 (FloatingActionButton) findViewById(R.id.undoFAB);
+        //Defining Other FAB
+        final FloatingActionButton otherButton =
+                (FloatingActionButton) findViewById(R.id.otherFab);
 
         //Defining ListView
         final ListView historyList = (ListView) findViewById(R.id.listView);
@@ -234,6 +237,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        //Defining Other button
+        otherButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Starting activity using a created intent.
+                Intent intent = new Intent(getBaseContext(), DrinkSelection.class);
+                startActivity(intent);
+            }
+        });
 
         //Setting onClickListener for undo button
         undoButton.setOnClickListener(new View.OnClickListener() {
@@ -247,8 +259,6 @@ public class MainActivity extends AppCompatActivity {
                     currentLevel -= results.last().getCafContent();;
                     if (currentLevel <= 0)
                         currentLevel = 0;
-
-
                     String tempStr = currentLevel + " mg";
                     levelNum.setText(tempStr);
                     animation.setStartEnd(oldLevel, currentLevel);
@@ -260,11 +270,9 @@ public class MainActivity extends AppCompatActivity {
                             results.deleteLastFromRealm();
                         }
                     });
-
                 }
             }
         });
-
     }
 
     public ArrayList<String> getFavIdList() {
@@ -273,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void addFavId(String id){
         favIdList.add(id);
-        //Add query then implement into toast
+        //Query to find drink
 
         Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + id +"';");
 
