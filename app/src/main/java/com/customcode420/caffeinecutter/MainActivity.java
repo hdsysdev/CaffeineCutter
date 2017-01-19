@@ -36,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
     private Realm realm;
     private final ArrayList<String> favIdList = new ArrayList<>();
     DrinksDatabaseHelper dbHelper = new DrinksDatabaseHelper(this);
+    ProgressBarAnimation animation = null;
+    ProgressBar caffeineMeter = null;
+    TextView levelNum = null;
+    HistoryAdapter historyAdapter = null;
 
     SharedPreferences sharedPrefs = null;
     int dailyCaffeine = 0;
@@ -56,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
                         .build());
-
         realm = Realm.getDefaultInstance();
 
         //Initialising drinks database
@@ -101,15 +104,14 @@ public class MainActivity extends AppCompatActivity {
 
         //Defining ListView
         final ListView historyList = (ListView) findViewById(R.id.listView);
-        final HistoryAdapter historyAdapter = new HistoryAdapter(this);
+        historyAdapter = new HistoryAdapter(this);
         historyList.setAdapter(historyAdapter);
 
 
-        final ProgressBar caffeineMeter = (ProgressBar) findViewById(R.id.progressBar);
-        final TextView levelNum = (TextView) findViewById(R.id.levelNumber);
+        caffeineMeter = (ProgressBar) findViewById(R.id.progressBar);
+        levelNum = (TextView) findViewById(R.id.levelNumber);
 
-        final ProgressBarAnimation animation =
-                new ProgressBarAnimation(caffeineMeter);
+        animation = new ProgressBarAnimation(caffeineMeter);
         animation.setDuration(1000);
         //Setting max value of progress bar to daily caffeine intake
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -120,32 +122,10 @@ public class MainActivity extends AppCompatActivity {
         instantCoffee250.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String drinkId = "instantCoffee";
-                final Integer cafContent = getCafContent(drinkId);
-
-                oldLevel = currentLevel;
-                currentLevel += cafContent;
-                String tempStr = currentLevel + " mg";
-                levelNum.setText(tempStr);
-                //Using setStartEnd function to change values in animation class.
-                animation.setStartEnd(oldLevel, currentLevel);
-                caffeineMeter.startAnimation(animation);
-
-                //Inserting drink to history realm
-                final String date = java.text.DateFormat.getDateTimeInstance()
-                        .format(Calendar.getInstance().getTime());
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        History history = realm.createObject(History.class);
-                        history.setCafContent(cafContent);
-                        history.setName(getDrinkName(drinkId));
-                        history.setTime(date);
-                    }
-                });
-
-                historyAdapter.notifyDataSetChanged();
+                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(), levelNum,
+                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
+                drink.addDrink("instantCoffee");
+                oldLevel = drink.getCurrentLevel();
             }
         });
 
@@ -153,28 +133,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "instantCoffee";
-                final Integer cafContent = getCafContent(drinkId);
-
-                oldLevel = currentLevel;
-                currentLevel += cafContent;
-                String tempStr = currentLevel + " mg";
-                levelNum.setText(tempStr);
-                animation.setStartEnd(oldLevel, currentLevel);
-                caffeineMeter.startAnimation(animation);
-
-                //Inserting drink to history realm
-                final String date = java.text.DateFormat.getDateTimeInstance()
-                        .format(Calendar.getInstance().getTime());
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        History history = realm.createObject(History.class);
-                        history.setCafContent(cafContent);
-                        history.setName(getDrinkName(drinkId));
-                        history.setTime(date);
-                    }
-                });
+                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(), levelNum,
+                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
+                drink.addDrink(drinkId);
+                oldLevel = drink.getCurrentLevel();
             }
         });
 
@@ -182,28 +144,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
-                final Integer cafContent = getCafContent(drinkId);
-                oldLevel = currentLevel;
-                currentLevel += cafContent;
-                String tempStr = currentLevel + " mg";
-                levelNum.setText(tempStr);
-                animation.setStartEnd(oldLevel, currentLevel);
-                caffeineMeter.startAnimation(animation);
-
-                //Inserting drink to history realm
-                final String date = java.text.DateFormat.getDateTimeInstance()
-                        .format(Calendar.getInstance().getTime());
-
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        History history = realm.createObject(History.class);
-                        history.setCafContent(cafContent);
-                        history.setName(getDrinkName(drinkId));
-                        history.setTime(date);
-                    }
-                });
+                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(),levelNum,
+                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
+                drink.addDrink(drinkId);
+                oldLevel = drink.getCurrentLevel();
             }
         });
         //Use ProgressBarAnimation function to animate the progress bad
@@ -211,29 +155,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
-                final Integer cafContent = getCafContent(drinkId);
-                oldLevel = currentLevel;
-                currentLevel += cafContent;
-
-                String tempStr = currentLevel + " mg";
-                levelNum.setText(tempStr);
-                animation.setStartEnd(oldLevel, currentLevel);
-                caffeineMeter.startAnimation(animation);
-
-
-                //Inserting drink to history realm
-                final String date = java.text.DateFormat.getDateTimeInstance()
-                        .format(Calendar.getInstance().getTime());
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        History history = realm.createObject(History.class);
-                        history.setCafContent(cafContent);
-                        history.setName(getDrinkName(drinkId));
-                        history.setTime(date);
-                    }
-                });
+                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(),levelNum,
+                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
+                drink.addDrink(drinkId);
+                oldLevel = drink.getCurrentLevel();
 
             }
         });
@@ -252,11 +177,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final RealmResults<History> results = realm.where(History.class).findAll();
-
+                //TODO: Fix this
                 if (!results.isEmpty()){
+                    currentLevel = caffeineMeter.getProgress();
                     oldLevel = currentLevel;
                     //Removing last entry in history realm from current level.
-                    currentLevel -= results.last().getCafContent();;
+                    currentLevel -= results.last().getCafContent();
                     if (currentLevel <= 0)
                         currentLevel = 0;
                     String tempStr = currentLevel + " mg";
@@ -292,29 +218,14 @@ public class MainActivity extends AppCompatActivity {
                 Toast.LENGTH_SHORT).show();
     }
 
-    public String getDrinkName(String drinkId){
-        //Creating cursor to pull data from DB.
-        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + drinkId +"';");
-        //Moving cursor to first position in results.
-        cursor.moveToFirst();
-        //Returning drink name and appending the volume of the drink to the end of the drink name
-        return cursor.getString(cursor.getColumnIndex("drinkName")) + " " +
-                cursor.getString(cursor.getColumnIndex("drinkVol"));
-    }
-
-    public Integer getCafContent(String drinkId){
-        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + drinkId +"';");
-        //Moving cursor to first position in results.
-        cursor.moveToFirst();
-        //Returning caffeine content in the drink from cafContent column.
-        return cursor.getInt(cursor.getColumnIndex("cafContent"));
-    }
 
     private static double round (double value) {
         int precision = 2;
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;
     }
+
+
 
     @Override
     protected void onResume() {

@@ -11,17 +11,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import io.realm.Realm;
+
 public class DrinkSelection extends AppCompatActivity {
 
     DrinksDatabaseHelper dbHelper = new DrinksDatabaseHelper(this);
     ArrayList<String> nameArray = new ArrayList<String>();
     ArrayList<Integer> cafContentArray = new ArrayList<Integer>();
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +33,9 @@ public class DrinkSelection extends AppCompatActivity {
         setContentView(R.layout.activity_drink_selection);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Initialising Realm
+        realm = Realm.getDefaultInstance();
 
         //Initialising drinks database
         try{
@@ -58,6 +65,13 @@ public class DrinkSelection extends AppCompatActivity {
 
         ListView listView = (ListView) findViewById(R.id.drinkSelectList);
         listView.setAdapter(customAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
