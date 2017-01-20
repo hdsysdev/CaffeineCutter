@@ -55,8 +55,7 @@ public class Drink {
         final Integer cafContent = getCafContent(drinkId);
 
         currentLevel += cafContent;
-        String tempStr = currentLevel + " mg";
-        levelNum.setText(tempStr);
+        levelNum.setText(currentLevel.toString());
         //Using setStartEnd function to change values in animation class.
         animation.setStartEnd(oldLevel, currentLevel);
         caffeineMeter.startAnimation(animation);

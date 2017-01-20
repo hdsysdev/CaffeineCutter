@@ -122,10 +122,10 @@ public class MainActivity extends AppCompatActivity {
         instantCoffee250.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(), levelNum,
+                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()), levelNum,
                         animation, dbHelper, caffeineMeter, historyAdapter, realm);
                 drink.addDrink("instantCoffee");
-                oldLevel = drink.getCurrentLevel();
+                oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
 
@@ -133,10 +133,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "instantCoffee";
-                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(), levelNum,
+                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()), levelNum,
                         animation, dbHelper, caffeineMeter, historyAdapter, realm);
                 drink.addDrink(drinkId);
-                oldLevel = drink.getCurrentLevel();
+                oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
 
@@ -144,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
-                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(),levelNum,
+                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()),levelNum,
                         animation, dbHelper, caffeineMeter, historyAdapter, realm);
                 drink.addDrink(drinkId);
-                oldLevel = drink.getCurrentLevel();
+                oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
         //Use ProgressBarAnimation function to animate the progress bad
@@ -155,10 +155,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
-                Drink drink = new Drink(oldLevel, caffeineMeter.getProgress(),levelNum,
+                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()),levelNum,
                         animation, dbHelper, caffeineMeter, historyAdapter, realm);
                 drink.addDrink(drinkId);
-                oldLevel = drink.getCurrentLevel();
+                oldLevel = Integer.parseInt(levelNum.getText().toString());
 
             }
         });
@@ -179,14 +179,13 @@ public class MainActivity extends AppCompatActivity {
                 final RealmResults<History> results = realm.where(History.class).findAll();
                 //TODO: Fix this
                 if (!results.isEmpty()){
-                    currentLevel = caffeineMeter.getProgress();
+                    currentLevel = Integer.parseInt(levelNum.getText().toString());
                     oldLevel = currentLevel;
                     //Removing last entry in history realm from current level.
                     currentLevel -= results.last().getCafContent();
                     if (currentLevel <= 0)
                         currentLevel = 0;
-                    String tempStr = currentLevel + " mg";
-                    levelNum.setText(tempStr);
+                    levelNum.setText(currentLevel.toString());
                     animation.setStartEnd(oldLevel, currentLevel);
                     caffeineMeter.startAnimation(animation);
 
