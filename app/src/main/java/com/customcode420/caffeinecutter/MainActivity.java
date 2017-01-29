@@ -1,5 +1,7 @@
 package com.customcode420.caffeinecutter;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -43,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences sharedPrefs = null;
     int dailyCaffeine = 0;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,9 +127,7 @@ public class MainActivity extends AppCompatActivity {
         instantCoffee250.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()), levelNum,
-                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
-                drink.addDrink("instantCoffee");
+                addDrink("instantCoffee");
                 oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
@@ -133,9 +136,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "instantCoffee";
-                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()), levelNum,
-                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
-                drink.addDrink(drinkId);
+                addDrink(drinkId);
                 oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
@@ -144,9 +145,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
-                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()),levelNum,
-                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
-                drink.addDrink(drinkId);
+                addDrink(drinkId);
                 oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
@@ -155,9 +154,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
-                Drink drink = new Drink(oldLevel, Integer.parseInt(levelNum.getText().toString()),levelNum,
-                        animation, dbHelper, caffeineMeter, historyAdapter, realm);
-                drink.addDrink(drinkId);
+                addDrink(drinkId);
                 oldLevel = Integer.parseInt(levelNum.getText().toString());
 
             }
@@ -168,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //Starting activity using a created intent.
                 Intent intent = new Intent(getBaseContext(), DrinkSelection.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -199,6 +196,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    //Adding drink after drink selection activity is closed
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                addDrink(data.getStringExtra("drinkId"));
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+
+        }
+    }
 
     public ArrayList<String> getFavIdList() {
         return favIdList;
@@ -223,8 +234,6 @@ public class MainActivity extends AppCompatActivity {
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;
     }
-
-
 
     @Override
     protected void onResume() {
@@ -256,5 +265,85 @@ public class MainActivity extends AppCompatActivity {
             builder.show();
             sharedPrefs.edit().putBoolean("firstrun", false).apply();
         }
+
+        //Setting progress bar and level text to caffeine level from shared prefs
+        caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
+        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Setting progress bar to caffeine level from shared prefs
+        caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
+        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
+    }
+
+    public String getDrinkName(String drinkId){
+        //Creating cursor to pull data from DB.
+        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + drinkId +"';");
+        //Moving cursor to first position in results.
+        cursor.moveToFirst();
+        //Returning drink name and appending the volume of the drink to the end of the drink name
+        return cursor.getString(cursor.getColumnIndex("drinkName")) + " " +
+                cursor.getString(cursor.getColumnIndex("drinkVol"));
+    }
+
+    public Integer getCafContent(String drinkId){
+        //Initialising drinks database
+        try{
+            dbHelper.createDataBase();
+
+        } catch (java.io.IOException ioe){
+            throw new Error("Cant create database");
+        }
+
+        try{
+            dbHelper.openDataBase();
+        } catch (SQLException sqle){
+            throw sqle;
+        }
+        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + drinkId +"';");
+        //Moving cursor to first position in results.
+        cursor.moveToFirst();
+        //Returning caffeine content in the drink from cafContent column.
+        return cursor.getInt(cursor.getColumnIndex("cafContent"));
+    }
+
+
+    public Integer getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public void addDrink(final String drinkId){
+        final Integer cafContent = getCafContent(drinkId);
+
+        currentLevel = Integer.parseInt(levelNum.getText().toString());
+        oldLevel = currentLevel;
+
+        //Adding old level to SharedPrefs
+        sharedPrefs.edit().putInt("cafLevel", oldLevel).apply();
+
+        currentLevel += cafContent;
+        levelNum.setText(currentLevel.toString());
+        //Using setStartEnd function to change values in animation class.
+        animation.setStartEnd(oldLevel, currentLevel);
+        caffeineMeter.startAnimation(animation);
+
+        //Inserting drink to history realm
+        final String date = java.text.DateFormat.getDateTimeInstance()
+                .format(Calendar.getInstance().getTime());
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                History history = realm.createObject(History.class);
+                history.setCafContent(cafContent);
+                history.setName(getDrinkName(drinkId));
+                history.setTime(date);
+            }
+        });
+        historyAdapter.notifyDataSetChanged();
+    }
+
 }
