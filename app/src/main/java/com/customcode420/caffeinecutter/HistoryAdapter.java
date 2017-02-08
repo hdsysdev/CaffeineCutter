@@ -69,13 +69,6 @@ public class HistoryAdapter extends BaseAdapter {
         contentNum.setText(results.get(position).getCafContent().toString());
         drinkId.setText(results.get(position).getName());
         timeView.setText(results.get(position).getTime());
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainActivity mainActivity = new MainActivity();
-                mainActivity.addFavId(results.get(tempPos).getName());
-            }
-        });
 
         return convertView;
     }

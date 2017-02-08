@@ -10,11 +10,13 @@ import android.database.SQLException;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -117,10 +119,49 @@ public class MainActivity extends AppCompatActivity {
         levelNum = (TextView) findViewById(R.id.levelNumber);
 
         animation = new ProgressBarAnimation(caffeineMeter);
-        animation.setDuration(1000);
+        animation.setDuration(500);
         //Setting max value of progress bar to daily caffeine intake
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setMax(sharedPrefs.getInt("dailyCaffeine", 300));
+
+        //Creating Alert Dialog Builder for pop up message.
+        final AlertDialog builder = new AlertDialog.Builder(this)
+                .setTitle("Input your daily caffeine intake")
+                .setPositiveButton("Submit", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        final EditText input = new EditText(this);
+        builder.setView(input);
+
+        //Setting builder positive and negative buttons to apply and cancel.
+        builder.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dailyCaffeine = Integer.parseInt(input.getText().toString());
+                        sharedPrefs.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
+                        builder.dismiss();
+                    }
+                });
+                Button buttonNegative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                buttonNegative.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getBaseContext(), "Please Enter A Value", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+        //Checking if it's the first run. If it is then firstrun is set to false and is committed.
+        if (sharedPrefs.getBoolean("firstrun", true)) {
+            //Showing Dialog
+            builder.show();
+            sharedPrefs.edit().putBoolean("firstrun", false).apply();
+        }
 
 
         //Creating onClickListeners with appropriate float values for caffeine amount.
@@ -128,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 addDrink("instantCoffee");
-                oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
 
@@ -137,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final String drinkId = "instantCoffee";
                 addDrink(drinkId);
-                oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
 
@@ -146,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
                 addDrink(drinkId);
-                oldLevel = Integer.parseInt(levelNum.getText().toString());
             }
         });
         //Use ProgressBarAnimation function to animate the progress bad
@@ -155,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final String drinkId = "brewedCoffee";
                 addDrink(drinkId);
-                oldLevel = Integer.parseInt(levelNum.getText().toString());
 
             }
         });
@@ -174,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final RealmResults<History> results = realm.where(History.class).findAll();
-                //TODO: Fix this
+
                 if (!results.isEmpty()){
                     currentLevel = Integer.parseInt(levelNum.getText().toString());
                     oldLevel = currentLevel;
@@ -186,6 +223,9 @@ public class MainActivity extends AppCompatActivity {
                     animation.setStartEnd(oldLevel, currentLevel);
                     caffeineMeter.startAnimation(animation);
 
+                    //Adding current level to SharedPrefs
+                    sharedPrefs.edit().putInt("cafLevel", currentLevel).apply();
+
                     realm.executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
@@ -195,6 +235,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        //Restoring caffeine meter progress and current level
+        caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
+        currentLevel = sharedPrefs.getInt("cafLevel", 0);
+        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
     }
     //Adding drink after drink selection activity is closed
     @Override
@@ -238,33 +282,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //Creating Alert Dialog Builder for pop up message.
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Input your daily caffeine intake");
-        final EditText input = new EditText(this);
-        builder.setView(input);
-
-        //Setting builder positive and negative buttons to apply and cancel.
-        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dailyCaffeine = Integer.parseInt(input.getText().toString());
-                sharedPrefs.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        //Checking if it's the first run. If it is then firstrun is set to false and is committed.
-        if (sharedPrefs.getBoolean("firstrun", true)) {
-            //Showing Dialog
-            builder.show();
-            sharedPrefs.edit().putBoolean("firstrun", false).apply();
-        }
 
         //Setting progress bar and level text to caffeine level from shared prefs
         caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
@@ -276,7 +293,40 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         //Setting progress bar to caffeine level from shared prefs
         caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
-        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
+//        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
+    }
+
+    public void addDrink(final String drinkId){
+        final Integer cafContent = getCafContent(drinkId);
+
+        currentLevel =  caffeineMeter.getProgress();
+        oldLevel = currentLevel;
+
+        currentLevel += cafContent;
+
+        //Adding current level to SharedPrefs
+        sharedPrefs.edit().putInt("cafLevel", currentLevel).apply();
+        levelNum.setText(Integer.toString(currentLevel));
+
+        //Inserting drink to history realm
+        final String date = java.text.DateFormat.getDateTimeInstance()
+                .format(Calendar.getInstance().getTime());
+
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                History history = realm.createObject(History.class);
+                history.setCafContent(cafContent);
+                history.setName(getDrinkName(drinkId));
+                history.setTime(date);
+            }
+        });
+        historyAdapter.notifyDataSetChanged();
+
+        //Using setStartEnd function to change values in animation class.
+        animation.setStartEnd(oldLevel, currentLevel);
+        caffeineMeter.startAnimation(animation);
     }
 
     public String getDrinkName(String drinkId){
@@ -315,35 +365,6 @@ public class MainActivity extends AppCompatActivity {
         return currentLevel;
     }
 
-    public void addDrink(final String drinkId){
-        final Integer cafContent = getCafContent(drinkId);
 
-        currentLevel = Integer.parseInt(levelNum.getText().toString());
-        oldLevel = currentLevel;
-
-        //Adding old level to SharedPrefs
-        sharedPrefs.edit().putInt("cafLevel", oldLevel).apply();
-
-        currentLevel += cafContent;
-        levelNum.setText(currentLevel.toString());
-        //Using setStartEnd function to change values in animation class.
-        animation.setStartEnd(oldLevel, currentLevel);
-        caffeineMeter.startAnimation(animation);
-
-        //Inserting drink to history realm
-        final String date = java.text.DateFormat.getDateTimeInstance()
-                .format(Calendar.getInstance().getTime());
-
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                History history = realm.createObject(History.class);
-                history.setCafContent(cafContent);
-                history.setName(getDrinkName(drinkId));
-                history.setTime(date);
-            }
-        });
-        historyAdapter.notifyDataSetChanged();
-    }
 
 }
