@@ -6,17 +6,27 @@
     android:layout_height="match_parent"
     android:layout_gravity="start"
     android:orientation="vertical">
+
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"/>
+        android:background="@color/background">
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/drawerList">
-    </ListView>
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/drawerList"/>
+
+    </FrameLayout>
+
+
+
+    <!--<ListView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:id="@+id/drawerList">-->
+    <!--</ListView>-->
 
     <!--<TextView-->
         <!--android:layout_width="wrap_content"-->

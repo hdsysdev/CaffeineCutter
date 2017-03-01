@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -107,6 +108,7 @@ public class DrinkSelection extends AppCompatActivity {
             // Lookup view for data population
             TextView drinkName = (TextView) convertView.findViewById(R.id.drinkSelectName);
             TextView cafContent = (TextView) convertView.findViewById(R.id.drinkContent);
+            ImageView favButton = (ImageView) convertView.findViewById(R.id.)
             // Populate the data into the template view using the data object
             drinkName.setText(nameArray.get(position));
             cafContent.setText("Caffeine Content: " +

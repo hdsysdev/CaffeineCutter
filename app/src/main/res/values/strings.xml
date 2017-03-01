@@ -3,7 +3,21 @@
     <string-array name="drawerMenuArray">
         <item>Home</item>
         <item>Favourites</item>
-        <item>Statistics</item>
+        <item>Information</item>
+        <item>Change Daily Caffeine Level</item>
     </string-array>
     <string name="title_activity_drink_selection">DrinkSelection</string>
+    <string name="caffeineInfo1">Caffeine is a stimulant drug, which means it speeds up the messages travelling between the brain and the body.
+        While caffeine still hasn’t been included in The National Institute of Drug Abuse’s Commonly Abused Drugs List it certainly does cause some level of addiction.
+
+    </string>
+    <string name="caffeineInfo2">However, those that use caffeine and have tried to
+        quit can attest that caffeine causes some degree of both psychological and physiological addiction.
+        Caffeine addiction can range from mild to severe and most of the time it is an addiction most people can live a healthy life with.
+        This is not the case when dangerous amounts of caffeine are being consumed daily or if caffeine is consumed through sugary beverages,
+        which are linked to obesity and type 2 diabetes. Evatt is part of a Johns Hopkins team working on a caffeine dependence treatment program.
+        If you want to quit, “I would first recommend becoming aware of how much caffeine you are consuming daily,” Evatt says, adding that many
+        people underestimate their use. He advises people against trying to quit caffeine cold turkey. “Withdrawal headaches can last days in some
+        individuals,” he says. Instead, cut down slowly to lessen withdrawal symptoms.</string>
+    <string name="title_activity_info">InfoActivity</string>
 </resources>

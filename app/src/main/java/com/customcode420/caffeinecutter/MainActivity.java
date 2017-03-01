@@ -83,47 +83,6 @@ public class MainActivity extends AppCompatActivity {
             throw sqle;
         }
 
-        //Defining list item array, drawer ListView and
-        String[] drawerListArray = getResources().getStringArray(R.array.drawerMenuArray);
-        ListView drawerList = (ListView) findViewById(R.id.drawerList);
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        Log.v("USER", drawerListArray.toString());
-        //Creating adapter to populate ListView
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.drawer_item, drawerListArray);
-        drawerList.setAdapter(adapter);
-
-
-        //Defining FABs for different kinds of coffee.
-        final FloatingActionButton instantCoffee250 =
-                (FloatingActionButton) findViewById(R.id.instantCoffee250);
-        final FloatingActionButton instantCoffee500 =
-                (FloatingActionButton) findViewById(R.id.instantCoffee500);
-        final FloatingActionButton brewedCoffee250 =
-                (FloatingActionButton) findViewById(R.id.brewedCoffee250);
-        final FloatingActionButton brewedCoffee500 =
-                (FloatingActionButton) findViewById(R.id.brewedCoffee500);
-        //Defining Undo FAB
-        final FloatingActionButton undoButton =
-                (FloatingActionButton) findViewById(R.id.undoFAB);
-        //Defining Other FAB
-        final FloatingActionButton otherButton =
-                (FloatingActionButton) findViewById(R.id.otherFab);
-
-        //Defining ListView
-        final ListView historyList = (ListView) findViewById(R.id.listView);
-        historyAdapter = new HistoryAdapter(this);
-        historyList.setAdapter(historyAdapter);
-
-
-        caffeineMeter = (ProgressBar) findViewById(R.id.progressBar);
-        levelNum = (TextView) findViewById(R.id.levelNumber);
-
-        animation = new ProgressBarAnimation(caffeineMeter);
-        animation.setDuration(500);
-        //Setting max value of progress bar to daily caffeine intake
-        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setMax(sharedPrefs.getInt("dailyCaffeine", 300));
-
         //Creating Alert Dialog Builder for pop up message.
         final AlertDialog builder = new AlertDialog.Builder(this)
                 .setTitle("Input your daily caffeine intake")
@@ -156,6 +115,62 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Defining list item array, drawer ListView and
+        String[] drawerListArray = getResources().getStringArray(R.array.drawerMenuArray);
+        ListView drawerList = (ListView) findViewById(R.id.drawerList);
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        //Creating adapter to populate ListView
+        drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerListArray));
+
+        //Making intent to start info activity
+        final Intent infoIntent = new Intent(this, InfoActivity.class);
+
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 1){
+                    Intent intent = new Intent(getBaseContext(), DrinkSelection.class);
+                    startActivityForResult(intent, 1);
+                } else if(position == 2){
+                    startActivity(infoIntent);
+                } else if(position == 3){
+                    builder.show();
+                }
+            }
+        });
+
+        //Defining FABs for different kinds of coffee.
+        final FloatingActionButton instantCoffee250 =
+                (FloatingActionButton) findViewById(R.id.instantCoffee250);
+        final FloatingActionButton instantCoffee500 =
+                (FloatingActionButton) findViewById(R.id.instantCoffee500);
+        final FloatingActionButton brewedCoffee250 =
+                (FloatingActionButton) findViewById(R.id.brewedCoffee250);
+        final FloatingActionButton brewedCoffee500 =
+                (FloatingActionButton) findViewById(R.id.brewedCoffee500);
+        //Defining Undo FAB
+        final FloatingActionButton undoButton =
+                (FloatingActionButton) findViewById(R.id.undoFAB);
+        //Defining Other FAB
+        final FloatingActionButton otherButton =
+                (FloatingActionButton) findViewById(R.id.otherFab);
+
+        //Defining ListView
+        final ListView historyList = (ListView) findViewById(R.id.listView);
+        historyAdapter = new HistoryAdapter(this);
+        historyList.setAdapter(historyAdapter);
+
+
+        caffeineMeter = (ProgressBar) findViewById(R.id.progressBar);
+        levelNum = (TextView) findViewById(R.id.levelNumber);
+
+        animation = new ProgressBarAnimation(caffeineMeter);
+        animation.setDuration(500);
+        //Setting max value of progress bar to daily caffeine intake
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setMax(sharedPrefs.getInt("dailyCaffeine", 300));
+
+
         //Checking if it's the first run. If it is then firstrun is set to false and is committed.
         if (sharedPrefs.getBoolean("firstrun", true)) {
             //Showing Dialog
@@ -171,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 addDrink("instantCoffee");
             }
         });
+
 
         instantCoffee500.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -240,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
         currentLevel = sharedPrefs.getInt("cafLevel", 0);
         levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
     }
+
     //Adding drink after drink selection activity is closed
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -249,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 addDrink(data.getStringExtra("drinkId"));
             }
             if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
+
             }
 
         }
@@ -293,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         //Setting progress bar to caffeine level from shared prefs
         caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
-//        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
     }
 
     public void addDrink(final String drinkId){
