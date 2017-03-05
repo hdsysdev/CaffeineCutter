@@ -5,8 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
@@ -15,6 +19,8 @@ import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -98,13 +104,14 @@ public class MainActivity extends AppCompatActivity {
 
         //Creating Alert Dialog Builder for pop up message.
         final AlertDialog builder = new AlertDialog.Builder(this)
-                .setTitle("Input your daily caffeine intake")
+                .setTitle("Input Your Daily Caffeine Intake:")
+                .setCancelable(false)
                 .setPositiveButton("Submit", null)
                 .setNegativeButton("Cancel", null)
                 .create();
         final EditText input = new EditText(this);
         builder.setView(input);
-        todayCaf(dailyCaffeine);
+
 
         //Setting builder positive and negative buttons to apply and cancel.
         builder.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -114,9 +121,26 @@ public class MainActivity extends AppCompatActivity {
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        dailyCaffeine = Integer.parseInt(input.getText().toString());
-                        sharedPreferences.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
-                        builder.dismiss();
+                        //Using try/catch statement to validate that the number entered is correct
+                        try {
+                            dailyCaffeine = Integer.parseInt(input.getText().toString());
+
+                            sharedPreferences.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
+                            builder.dismiss();
+
+
+                            final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+                            dailyCaffeine = sharedPreferences.getInt("dailyCaffeine", 300);
+                            //Setting max value of progress bar to daily caffeine intake
+                            int tempInt = (int) todayCaf(dailyCaffeine);
+                            progressBar.setMax(tempInt);
+
+                            TextView todayMax = (TextView) findViewById(R.id.todayMax);
+                            todayMax.setText(Integer.toString(tempInt));
+                        } catch (NumberFormatException e){
+                            Toast.makeText(getBaseContext(), "Please Enter A Valid Number", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 Button buttonNegative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -128,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+
 
         //Defining list item array, drawer ListView and
         String[] drawerListArray = getResources().getStringArray(R.array.drawerMenuArray);
@@ -176,26 +201,32 @@ public class MainActivity extends AppCompatActivity {
 
         caffeineMeter = (ProgressBar) findViewById(R.id.progressBar);
         levelNum = (TextView) findViewById(R.id.levelNumber);
-
+        //Setting animation for progress bar
         animation = new ProgressBarAnimation(caffeineMeter);
         animation.setDuration(500);
+
+
+        dailyCaffeine = sharedPreferences.getInt("dailyCaffeine", 300);
         //Setting max value of progress bar to daily caffeine intake
-        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setMax(sharedPreferences.getInt("dailyCaffeine", 300));
+        int tempInt = (int) todayCaf(dailyCaffeine);
+        caffeineMeter.setMax(tempInt);
+
+        TextView todayMax = (TextView) findViewById(R.id.todayMax);
+        todayMax.setText(Integer.toString(tempInt));
 
 
         //Checking if it's the first run. If it is then firstrun is set to false and is committed.
         if (sharedPreferences.getBoolean("firstrun", true)) {
             //Showing Dialog
             builder.show();
-            sharedPreferences.edit().putBoolean("firstrun", false).apply();
+            sharedPreferences.edit().putBoolean("firstrun", false).commit();
 
             Date date = new Date(System.currentTimeMillis());
-            sharedPreferences.edit().putLong("startDate", date.getTime()).apply();
+            sharedPreferences.edit().putLong("startDate", date.getTime()).commit();
         }
 
 
-        //Putting Fabs into array
+        //Setting max value of progress bar to daily caffeine intake
         ArrayList<FloatingActionButton> fabsArray = new ArrayList<>(Arrays.asList(fab1,
                 fab2,
                 fab3,
@@ -289,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+                checkColour(currentLevel, caffeineMeter);
             }
         });
         //Restoring caffeine meter progress and current level
@@ -362,7 +394,41 @@ public class MainActivity extends AppCompatActivity {
                 fabsArray.get(favDrinks.size() - 1).setLabelText(favDrinks.get(favDrinks.size() - 1).getDrinkName());
             }
         }
+        checkColour(currentLevel, caffeineMeter);
+    }
+    public void checkColour(Integer currentLevel, ProgressBar caffeineMeter){
+        Context context = this;
+        if (currentLevel < (caffeineMeter.getMax() / 2)){
+            //Changing colour to green if caffeine level is lower than half of max of meter
+            caffeineMeter.getProgressDrawable().setColorFilter(Color.parseColor("#4CAF50"), PorterDuff.Mode.SRC_IN);
 
+            //If android version is over above lollipop then change colour of statusbar and navbar too too
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Window window = ((Activity) context).getWindow();
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(Color.parseColor("#4CAF50"));
+            }
+        } else if(currentLevel > (caffeineMeter.getMax() / 2) && currentLevel < caffeineMeter.getMax()){
+            //Changing colour to orange if caffeine level is higher than half max of meter
+            caffeineMeter.getProgressDrawable().setColorFilter(Color.parseColor("#FF9800"), PorterDuff.Mode.SRC_IN);
+
+            //If android version is over above lollipop then change colour of statusbar and navbar too too
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Window window = ((Activity) context).getWindow();
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(Color.parseColor("#FF9800"));
+            }
+        } else {
+            //Changing colour to red if caffeine level is too high
+            caffeineMeter.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+
+            //If android version is over above lollipop then change colour of statusbar and navbar too too
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Window window = ((Activity) context).getWindow();
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(Color.RED);
+            }
+        }
     }
 
     @Override
@@ -375,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
     public void addDrink(final String drinkId){
         final Integer cafContent = getCafContent(drinkId);
 
-        currentLevel =  caffeineMeter.getProgress();
+        currentLevel =  Integer.parseInt(levelNum.getText().toString());
         oldLevel = currentLevel;
 
         currentLevel += cafContent;
@@ -403,6 +469,8 @@ public class MainActivity extends AppCompatActivity {
         //Using setStartEnd function to change values in animation class.
         animation.setStartEnd(oldLevel, currentLevel);
         caffeineMeter.startAnimation(animation);
+
+        checkColour(currentLevel, caffeineMeter);
     }
 
     public String getDrinkName(String drinkId){
@@ -436,13 +504,14 @@ public class MainActivity extends AppCompatActivity {
         return cursor.getInt(cursor.getColumnIndex("cafContent"));
     }
 
-    public Integer todayCaf(Integer dailyCaffeine){
-        Date date = new GregorianCalendar(2015, 3, 3).getTime();
-//        Date date = new Date(sharedPreferences.getLong("startDate", 0));
+    public double todayCaf(Integer dailyCaffeine){
+//        Date date = new GregorianCalendar(2017, 2, 3).getTime();
+        Date date = new Date(sharedPreferences.getLong("startDate", 0));
         Date todayDate = new Date(System.currentTimeMillis());
         long diff = todayDate.getTime() - date.getTime();
-        long difference = TimeUnit.MILLISECONDS.toDays(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+        long difference = TimeUnit.MILLISECONDS.toDays(TimeUnit.DAYS.convert(diff, TimeUnit.DAYS));
 
-        return 0;
+        double multiplier = dailyCaffeine * 0.10;
+        return dailyCaffeine - (multiplier * difference);
     }
 }

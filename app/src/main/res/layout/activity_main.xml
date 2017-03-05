@@ -31,15 +31,38 @@
 
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="300sp"
             android:headerDividersEnabled="false"
             android:id="@+id/listView"
             tools:ignore="UnknownId"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true">
-
         </ListView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="Today's Maximum Caffeine: "
+            android:id="@+id/maxPre"
+            android:layout_below="@id/include2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textSize="20sp"
+            android:id="@+id/todayMax"
+            android:layout_toRightOf="@id/maxPre"
+            android:layout_toEndOf="@id/maxPre"
+            android:layout_below="@id/include2" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="Caffeine Consumption History:"
+            android:layout_above="@id/listView" />
 
 
         <com.github.clans.fab.FloatingActionMenu
@@ -75,14 +98,14 @@
                 android:src="@drawable/coffee_cup2_l"
                 android:id="@+id/brewedCoffee500"
                 app:fabSize="normal"
-                app:fab_label="Brewed Coffee (500ml)"/>
+                app:fab_label="Brewed Coffee"/>
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/coffee_cup_l"
                 android:id="@+id/instantCoffee500"
                 app:fabSize="normal"
-                app:fab_label="Instant Coffee (500ml)"/>
+                app:fab_label="Instant Coffee"/>
 
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
@@ -90,14 +113,14 @@
                 app:fabSize="normal"
                 android:id="@+id/brewedCoffee250"
                 android:src="@drawable/coffee_cup2"
-                app:fab_label="Brewed Coffee (250ml)"/>
+                app:fab_label="Brewed Coffee"/>
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/coffee_cup"
                 android:id="@+id/instantCoffee250"
                 app:fabSize="normal"
-                app:fab_label="Instant Coffee (250ml)"/>
+                app:fab_label="Instant Coffee"/>
         </com.github.clans.fab.FloatingActionMenu>
 
 
