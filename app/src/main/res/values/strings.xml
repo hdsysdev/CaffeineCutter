@@ -20,4 +20,7 @@
         people underestimate their use. He advises people against trying to quit caffeine cold turkey. “Withdrawal headaches can last days in some
         individuals,” he says. Instead, cut down slowly to lessen withdrawal symptoms.</string>
     <string name="title_activity_info">InfoActivity</string>
+    <string name="drink_name">Drink Name</string>
+    <string name="caffeine_content">Caffeine Content:</string>
+    <string name="time">Time</string>
 </resources>

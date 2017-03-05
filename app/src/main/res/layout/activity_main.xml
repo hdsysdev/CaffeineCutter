@@ -79,30 +79,29 @@
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/coffee_cup"
+                android:src="@drawable/other"
                 android:id="@+id/otherFab"
                 app:fabSize="normal"
                 app:fab_label="Other"/>
 
-
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_fab_star"
+                android:src="@drawable/undo"
                 android:id="@+id/undoFAB"
                 app:fabSize="normal"
                 app:fab_label="Undo"/>
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/coffee_cup2_l"
+                android:src="@drawable/dot"
                 android:id="@+id/brewedCoffee500"
                 app:fabSize="normal"
                 app:fab_label="Brewed Coffee"/>
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/coffee_cup_l"
+                android:src="@drawable/dot"
                 android:id="@+id/instantCoffee500"
                 app:fabSize="normal"
                 app:fab_label="Instant Coffee"/>
@@ -112,12 +111,12 @@
                 android:layout_height="wrap_content"
                 app:fabSize="normal"
                 android:id="@+id/brewedCoffee250"
-                android:src="@drawable/coffee_cup2"
+                android:src="@drawable/dot"
                 app:fab_label="Brewed Coffee"/>
             <com.github.clans.fab.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/coffee_cup"
+                android:src="@drawable/dot"
                 android:id="@+id/instantCoffee250"
                 app:fabSize="normal"
                 app:fab_label="Instant Coffee"/>

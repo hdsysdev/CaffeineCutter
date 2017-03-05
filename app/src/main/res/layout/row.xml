@@ -7,16 +7,19 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/coffee_cup"
-        android:paddingRight="10dp"
-        android:scaleX="1.2"
-        android:scaleY="1.2"
-        android:id="@+id/drinkImg"/>
+        android:src="@drawable/cup"
+        android:paddingRight="5dp"
+        android:paddingEnd="5dp"
+        android:paddingLeft="10dp"
+        android:paddingStart="10dp"
+        android:id="@+id/drinkImg"
+        android:layout_alignBottom="@+id/contentLabel"
+        android:layout_alignParentTop="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Drink Name"
+        android:text="@string/drink_name"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_toEndOf="@id/drinkImg"
@@ -29,14 +32,15 @@
         android:layout_below="@id/drinkName"
         android:layout_toRightOf="@id/drinkImg"
         android:layout_toEndOf="@id/drinkImg"
-        android:text="Caffeine Content: "
+        android:text="@string/caffeine_content"
         android:id="@+id/contentLabel"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/contentLabel"
-        android:text="69mg"
+        android:layout_toEndOf="@id/contentLabel"
+        android:text="0mg"
         android:layout_below="@id/drinkName"
         android:textStyle="bold"
         android:id="@+id/contentNum"/>
@@ -45,12 +49,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:text="Time"
+        android:text="@string/time"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:textSize="15sp"
         android:paddingRight="10dp"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
         android:id="@+id/timeTextView"/>
 
 

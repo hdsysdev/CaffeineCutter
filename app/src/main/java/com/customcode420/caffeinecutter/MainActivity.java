@@ -512,6 +512,6 @@ public class MainActivity extends AppCompatActivity {
         long difference = TimeUnit.MILLISECONDS.toDays(TimeUnit.DAYS.convert(diff, TimeUnit.DAYS));
 
         double multiplier = dailyCaffeine * 0.10;
-        return dailyCaffeine - (multiplier * difference);
+        return (dailyCaffeine - (multiplier * difference));
     }
 }
