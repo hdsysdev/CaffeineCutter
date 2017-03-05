@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
@@ -28,7 +29,11 @@ import com.github.clans.fab.FloatingActionButton;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
+import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -39,25 +44,33 @@ public class MainActivity extends AppCompatActivity {
     Integer currentLevel = 0;
     Integer oldLevel = 0;
     private Realm realm;
-    private final ArrayList<String> favIdList = new ArrayList<>();
     DrinksDatabaseHelper dbHelper = new DrinksDatabaseHelper(this);
     ProgressBarAnimation animation = null;
     ProgressBar caffeineMeter = null;
     TextView levelNum = null;
     HistoryAdapter historyAdapter = null;
 
-    SharedPreferences sharedPrefs = null;
+    SharedPreferences sharedPreferences = null;
+    SharedPreference sharedPrefs = new SharedPreference();
     int dailyCaffeine = 0;
 
+    ArrayList<Drink> favDrinks = new ArrayList<>(Arrays.asList(new Drink("instantCoffee", "Instant Coffee"),
+            new Drink("instantCoffee", "Instant Coffee"),
+            new Drink("brewedCoffee", "Brewed Coffee"),
+            new Drink("brewedCoffee", "Brewed Coffee")));
 
+    ArrayList<Drink> defaultDrinks = new ArrayList<>(Arrays.asList(new Drink("instantCoffee", "Instant Coffee"),
+            new Drink("instantCoffee", "Instant Coffee"),
+            new Drink("brewedCoffee", "Brewed Coffee"),
+            new Drink("brewedCoffee", "Brewed Coffee")));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Initialising SharedPreferences to check if it's the app's first run
-        sharedPrefs = getSharedPreferences("com.customcode420.caffeinecutter", MODE_PRIVATE);
+        //Initialising SharedPreferences
+        sharedPreferences = getSharedPreferences("com.customcode420.caffeinecutter", MODE_PRIVATE);
 
         //Initialising RealmDb and Stetho for use in Chrome dev tools
         Realm.init(this);
@@ -91,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 .create();
         final EditText input = new EditText(this);
         builder.setView(input);
+        todayCaf(dailyCaffeine);
 
         //Setting builder positive and negative buttons to apply and cancel.
         builder.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -101,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dailyCaffeine = Integer.parseInt(input.getText().toString());
-                        sharedPrefs.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
+                        sharedPreferences.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
                         builder.dismiss();
                     }
                 });
@@ -118,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
         //Defining list item array, drawer ListView and
         String[] drawerListArray = getResources().getStringArray(R.array.drawerMenuArray);
         ListView drawerList = (ListView) findViewById(R.id.drawerList);
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         //Creating adapter to populate ListView
         drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerListArray));
 
@@ -139,14 +152,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Defining FABs for different kinds of coffee.
-        final FloatingActionButton instantCoffee250 =
+        //Defining FABs for favourite buttons.
+        final FloatingActionButton fab1 =
                 (FloatingActionButton) findViewById(R.id.instantCoffee250);
-        final FloatingActionButton instantCoffee500 =
+        final FloatingActionButton fab2 =
                 (FloatingActionButton) findViewById(R.id.instantCoffee500);
-        final FloatingActionButton brewedCoffee250 =
+        final FloatingActionButton fab3 =
                 (FloatingActionButton) findViewById(R.id.brewedCoffee250);
-        final FloatingActionButton brewedCoffee500 =
+        final FloatingActionButton fab4 =
                 (FloatingActionButton) findViewById(R.id.brewedCoffee500);
         //Defining Undo FAB
         final FloatingActionButton undoButton =
@@ -168,50 +181,77 @@ public class MainActivity extends AppCompatActivity {
         animation.setDuration(500);
         //Setting max value of progress bar to daily caffeine intake
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setMax(sharedPrefs.getInt("dailyCaffeine", 300));
+        progressBar.setMax(sharedPreferences.getInt("dailyCaffeine", 300));
 
 
         //Checking if it's the first run. If it is then firstrun is set to false and is committed.
-        if (sharedPrefs.getBoolean("firstrun", true)) {
+        if (sharedPreferences.getBoolean("firstrun", true)) {
             //Showing Dialog
             builder.show();
-            sharedPrefs.edit().putBoolean("firstrun", false).apply();
+            sharedPreferences.edit().putBoolean("firstrun", false).apply();
+
+            Date date = new Date(System.currentTimeMillis());
+            sharedPreferences.edit().putLong("startDate", date.getTime()).apply();
         }
 
 
-        //Creating onClickListeners with appropriate float values for caffeine amount.
-        instantCoffee250.setOnClickListener(new View.OnClickListener() {
+        //Putting Fabs into array
+        ArrayList<FloatingActionButton> fabsArray = new ArrayList<>(Arrays.asList(fab1,
+                fab2,
+                fab3,
+                fab4));
+
+        //Setting labels and ids for FABs if favDrinks is not empty
+        if (sharedPrefs.getFavorites(this) != null) {
+            favDrinks = sharedPrefs.getFavorites(this);
+            for (Drink drink : favDrinks) {
+                fabsArray.get(favDrinks.indexOf(drink)).setLabelText(drink.getDrinkName());
+            }
+        } else {
+            favDrinks = new ArrayList<>(Arrays.asList(new Drink("instantCoffee", "Instant Coffee"),
+                    new Drink("instantCoffee", "Instant Coffee"),
+                    new Drink("brewedCoffee", "Brewed Coffee"),
+                    new Drink("brewedCoffee", "Brewed Coffee")));
+        }
+
+        //Check if the fav drinks is of size 4, if not then pad using values from defaultDrinks array
+        if(favDrinks.size() < 4){
+            while (favDrinks.size() != 4){
+                favDrinks.add(defaultDrinks.get(favDrinks.size() - 1));
+                //Resetting name for FABs to be accurate
+                fabsArray.get(favDrinks.size() - 1).setLabelText(favDrinks.get(favDrinks.size() - 1).getDrinkName());
+            }
+        }
+
+        //Creating onClickListeners with appropriate drinkIds
+        fab1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addDrink("instantCoffee");
+                addDrink(favDrinks.get(0).getDrinkId());
             }
         });
 
-
-        instantCoffee500.setOnClickListener(new View.OnClickListener() {
+        fab2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String drinkId = "instantCoffee";
-                addDrink(drinkId);
+                addDrink(favDrinks.get(1).getDrinkId());
             }
         });
 
-        brewedCoffee250.setOnClickListener(new View.OnClickListener() {
+        fab3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String drinkId = "brewedCoffee";
-                addDrink(drinkId);
+                addDrink(favDrinks.get(2).getDrinkId());
             }
         });
-        //Use ProgressBarAnimation function to animate the progress bad
-        brewedCoffee500.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String drinkId = "brewedCoffee";
-                addDrink(drinkId);
 
+        fab4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addDrink(favDrinks.get(3).getDrinkId());
             }
         });
+
         //Defining Other button
         otherButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -239,8 +279,8 @@ public class MainActivity extends AppCompatActivity {
                     animation.setStartEnd(oldLevel, currentLevel);
                     caffeineMeter.startAnimation(animation);
 
-                    //Adding current level to SharedPrefs
-                    sharedPrefs.edit().putInt("cafLevel", currentLevel).apply();
+                    //Adding current level to sharedPreferences
+                    sharedPreferences.edit().putInt("cafLevel", currentLevel).apply();
 
                     realm.executeTransaction(new Realm.Transaction() {
                         @Override
@@ -252,9 +292,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //Restoring caffeine meter progress and current level
-        caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
-        currentLevel = sharedPrefs.getInt("cafLevel", 0);
-        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
+        caffeineMeter.setProgress(sharedPreferences.getInt("cafLevel", 0));
+        currentLevel = sharedPreferences.getInt("cafLevel", 0);
+        levelNum.setText(Integer.toString(sharedPreferences.getInt("cafLevel", 0)));
     }
 
     //Adding drink after drink selection activity is closed
@@ -263,37 +303,18 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                addDrink(data.getStringExtra("drinkId"));
+                //Checking if drinkId was passed
+                if (data.getStringExtra("drinkId") != null)
+                    addDrink(data.getStringExtra("drinkId"));
+
             }
             if (resultCode == Activity.RESULT_CANCELED) {
 
             }
 
+            sharedPrefs.getFavorites(this);
+
         }
-    }
-
-    public ArrayList<String> getFavIdList() {
-        return favIdList;
-    }
-
-    public void addFavId(String id){
-        favIdList.add(id);
-        //Query to find drink
-
-        Cursor cursor = dbHelper.queryDb("SELECT * FROM drinks WHERE drinkId = '" + id +"';");
-
-        //Moves the cursor to the first location.
-        cursor.moveToFirst();
-        Toast.makeText(this, "You've added " +
-                        cursor.getString(cursor.getColumnIndex("drinkName")) + " to your favourites",
-                Toast.LENGTH_SHORT).show();
-    }
-
-
-    private static double round (double value) {
-        int precision = 2;
-        int scale = (int) Math.pow(10, precision);
-        return (double) Math.round(value * scale) / scale;
     }
 
     @Override
@@ -301,15 +322,54 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         //Setting progress bar and level text to caffeine level from shared prefs
-        caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
-        levelNum.setText(Integer.toString(sharedPrefs.getInt("cafLevel", 0)));
+        caffeineMeter.setProgress(sharedPreferences.getInt("cafLevel", 0));
+        levelNum.setText(Integer.toString(sharedPreferences.getInt("cafLevel", 0)));
+
+        final FloatingActionButton fab1 =
+                (FloatingActionButton) findViewById(R.id.instantCoffee250);
+        final FloatingActionButton fab2 =
+                (FloatingActionButton) findViewById(R.id.instantCoffee500);
+        final FloatingActionButton fab3 =
+                (FloatingActionButton) findViewById(R.id.brewedCoffee250);
+        final FloatingActionButton fab4 =
+                (FloatingActionButton) findViewById(R.id.brewedCoffee500);
+
+        ArrayList<FloatingActionButton> fabsArray = new ArrayList<>(Arrays.asList(fab1,
+                fab2,
+                fab3,
+                fab4));
+
+        favDrinks = sharedPrefs.getFavorites(this);
+
+        //Setting labels and ids for FABs if favDrinks is not empty
+        if (sharedPrefs.getFavorites(this) != null) {
+            favDrinks = sharedPrefs.getFavorites(this);
+            for (Drink drink : favDrinks) {
+                fabsArray.get(favDrinks.indexOf(drink)).setLabelText(drink.getDrinkName());
+            }
+        } else {
+            favDrinks = new ArrayList<>(Arrays.asList(new Drink("instantCoffee", "Instant Coffee"),
+                    new Drink("instantCoffee", "Instant Coffee"),
+                    new Drink("brewedCoffee", "Brewed Coffee"),
+                    new Drink("brewedCoffee", "Brewed Coffee")));
+        }
+
+        //Check if the fav drinks is of size 4, if not then pad using values from defaultDrinks array
+        if(favDrinks.size() < 4){
+            while (favDrinks.size() != 4){
+                favDrinks.add(defaultDrinks.get(favDrinks.size() - 1));
+                //Resetting name for FABs to be accurate
+                fabsArray.get(favDrinks.size() - 1).setLabelText(favDrinks.get(favDrinks.size() - 1).getDrinkName());
+            }
+        }
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         //Setting progress bar to caffeine level from shared prefs
-        caffeineMeter.setProgress(sharedPrefs.getInt("cafLevel", 0));
+        caffeineMeter.setProgress(sharedPreferences.getInt("cafLevel", 0));
     }
 
     public void addDrink(final String drinkId){
@@ -320,8 +380,8 @@ public class MainActivity extends AppCompatActivity {
 
         currentLevel += cafContent;
 
-        //Adding current level to SharedPrefs
-        sharedPrefs.edit().putInt("cafLevel", currentLevel).apply();
+        //Adding current level to sharedPreferences
+        sharedPreferences.edit().putInt("cafLevel", currentLevel).apply();
         levelNum.setText(Integer.toString(currentLevel));
 
         //Inserting drink to history realm
@@ -376,11 +436,13 @@ public class MainActivity extends AppCompatActivity {
         return cursor.getInt(cursor.getColumnIndex("cafContent"));
     }
 
+    public Integer todayCaf(Integer dailyCaffeine){
+        Date date = new GregorianCalendar(2015, 3, 3).getTime();
+//        Date date = new Date(sharedPreferences.getLong("startDate", 0));
+        Date todayDate = new Date(System.currentTimeMillis());
+        long diff = todayDate.getTime() - date.getTime();
+        long difference = TimeUnit.MILLISECONDS.toDays(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
 
-    public Integer getCurrentLevel() {
-        return currentLevel;
+        return 0;
     }
-
-
-
 }
