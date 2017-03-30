@@ -1,8 +1,5 @@
 package com.customcode420.caffeinecutter;
 
-
-import java.sql.Date;
-
 import io.realm.RealmObject;
 
 public class History  extends RealmObject{

@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
@@ -61,7 +60,7 @@ public class SharedPreference {
 
         settings = context.getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
-
+        //Using Gson Library to turn Drink objects into a json format to be saved in a string
         if (settings.contains(FAVORITES)) {
             String jsonFavorites = settings.getString(FAVORITES, null);
             Gson gson = new Gson();

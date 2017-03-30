@@ -3,7 +3,6 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -13,7 +12,6 @@
         android:paddingLeft="7dp"
         android:textSize="16sp"
         android:textColor="@color/black"/>
-
     <ToggleButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +25,6 @@
         android:textOff="Not Favourite"
         android:focusable="false"
         android:focusableInTouchMode="false"/>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

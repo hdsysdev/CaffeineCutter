@@ -5,19 +5,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -32,14 +27,15 @@ import android.widget.Toast;
 
 import com.facebook.stetho.Stetho;
 import com.github.clans.fab.FloatingActionButton;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.concurrent.TimeUnit;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -47,6 +43,7 @@ import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
+    //Declaring and initialising required objects and variables.
     Integer currentLevel = 0;
     Integer oldLevel = 0;
     private Realm realm;
@@ -60,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreference sharedPrefs = new SharedPreference();
     int dailyCaffeine = 0;
 
+    //Setting default values for arrays in case the user does not select favourites.
     ArrayList<Drink> favDrinks = new ArrayList<>(Arrays.asList(new Drink("instantCoffee", "Instant Coffee"),
             new Drink("instantCoffee", "Instant Coffee"),
             new Drink("brewedCoffee", "Brewed Coffee"),
@@ -88,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                         .build());
         realm = Realm.getDefaultInstance();
 
-        //Initialising drinks database
+        //Initialising drinks database with try catch statements to catch any errors
         try{
             dbHelper.createDataBase();
 
@@ -126,16 +124,16 @@ public class MainActivity extends AppCompatActivity {
                             dailyCaffeine = Integer.parseInt(input.getText().toString());
 
                             sharedPreferences.edit().putInt("dailyCaffeine", dailyCaffeine).apply();
+                            //Dismissing dialog if user presses button
                             builder.dismiss();
 
-
+                            //Finding progress bar view and initialising its object
                             final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
+                            //Saving user's daily caffeine intake to storage
                             dailyCaffeine = sharedPreferences.getInt("dailyCaffeine", 300);
                             //Setting max value of progress bar to daily caffeine intake
                             int tempInt = (int) todayCaf(dailyCaffeine);
                             progressBar.setMax(tempInt);
-
                             TextView todayMax = (TextView) findViewById(R.id.todayMax);
                             todayMax.setText(Integer.toString(tempInt));
                         } catch (NumberFormatException e){
@@ -147,11 +145,22 @@ public class MainActivity extends AppCompatActivity {
                 buttonNegative.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //If cancel button is pressed, ask user to enter a value
                         Toast.makeText(getBaseContext(), "Please Enter A Value", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
+
+
+
+        //Initialising objects required to load apps into the AdView then loading ad.
+        AdView adView = (AdView)findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+
+        adView.loadAd(adRequest);
 
 
         //Defining list item array, drawer ListView and
