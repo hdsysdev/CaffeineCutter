@@ -26,9 +26,7 @@ import io.realm.Realm;
 public class DrinkSelection extends AppCompatActivity {
 
     DrinksDatabaseHelper dbHelper = new DrinksDatabaseHelper(this);
-    ArrayList<String> nameArray = new ArrayList<>();
-    ArrayList<Integer> cafContentArray = new ArrayList<>();
-    ArrayList<String>  drinkIdArray = new ArrayList<>();
+
     private Realm realm;
     private Context context;
     final Intent returnIntent = new Intent();
@@ -36,8 +34,6 @@ public class DrinkSelection extends AppCompatActivity {
     private Toast toast;
     ArrayList<Drink> drinkList = new ArrayList<>();
     private SharedPreference sharedPrefs = new SharedPreference();
-
-    private ArrayList<ToggleButton> buttonList = new ArrayList<>();
 
     public DrinkSelection(){
 

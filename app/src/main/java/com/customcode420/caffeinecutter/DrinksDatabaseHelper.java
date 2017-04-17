@@ -27,7 +27,6 @@ public class DrinksDatabaseHelper extends SQLiteOpenHelper{
     /**
      * Constructor
      * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
-     * @param context
      */
     public DrinksDatabaseHelper(Context context) {
 
@@ -91,7 +90,7 @@ public class DrinksDatabaseHelper extends SQLiteOpenHelper{
     }
 
     /**
-     * Copies  database from  local assets-folder to the just created empty database in the
+     * Copies  database from  local assets-folder to the empty database in the
      * system folder, from where it can be accessed and handled.
      * This is done by transfering bytestream.
      * */
@@ -106,7 +105,7 @@ public class DrinksDatabaseHelper extends SQLiteOpenHelper{
         //Open the empty db as the output stream
         OutputStream myOutput = new FileOutputStream(outFileName);
 
-        //transfer bytes from the inputfile to the outputfile
+        //transfer bytes from the input file to the output file
         byte[] buffer = new byte[1024];
         int length;
         while ((length = myInput.read(buffer))>0){
